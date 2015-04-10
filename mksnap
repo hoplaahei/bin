@@ -1,0 +1,29 @@
+#!/bin/bash
+
+BTRFS_MOUNT='/mnt/btrfs'
+SNAP_DIR=$1
+
+if ! [[ $SNAP_DIR =~ ^[a-zA-Z0-9_-]+$ ]]; then
+    echo 'For safety reasons, only a-z A-Z - and _ characters are allowed' >&2 # write to stderr
+    exit 1
+fi
+
+if [[ $SNAP_DIR =~ .*\-changes$ ]]; then
+    echo "'-changes' is a filename suffix used by this script internally, and therefore not allowed" >&2 # write to stderr
+    exit 1
+fi
+
+if [[ -d $BTRFS_MOUNT/$SNAP_DIR ]]; then
+    echo "Snapshot seems to already exist" >&2 # write to stderr
+    exit 1
+fi
+
+sudo mkdir $BTRFS_MOUNT/$SNAP_DIR
+
+(
+    cd $BTRFS_MOUNT
+    for s in $(sudo btrfs subvolume list $BTRFS_MOUNT | awk '!/\// {print $NF}')
+    do
+        sudo btrfs subvolume snapshot "$s" "$BTRFS_MOUNT/${SNAP_DIR}/$s"
+    done
+)

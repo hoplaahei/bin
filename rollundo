@@ -1,0 +1,38 @@
+#!/bin/bash
+
+BTRFS_MOUNT='/mnt/btrfs'
+SNAP_DIR=$1
+
+if ! [[ $SNAP_DIR =~ ^[a-zA-Z_-]+$ ]]; then
+    echo 'For safety reasons, only a-z A-Z - and _ characters are allowed' >&2 # write to stderr
+    exit 1
+fi
+
+if [[ $SNAP_DIR =~ .*\-changes$ ]]; then
+    echo "'-changes' is a filename suffix used by this script internally, and therefore not allowed" >&2 # write to stderr
+    exit 1
+fi
+
+BACKUP_DIR=${BTRFS_MOUNT}/${SNAP_DIR}-changes
+
+if [ ! -d $BACKUP_DIR ]; then
+    echo "There are no changes saved for this snapshot."
+    exit 1
+fi
+
+if [ ! -d $SNAP_DIR ]; then
+    sudo mkdir $BTRFS_MOUNT/$SNAP_DIR;
+else
+    echo "It seems you've not yet restored from this snapshot. Nothing to undo."
+    exit 1
+fi
+
+for s in $(sudo btrfs subvolume list $BTRFS_MOUNT | awk '!/\// {print $NF}')
+do
+   sudo mv $BTRFS_MOUNT/$s $BTRFS_MOUNT/$SNAP_DIR/$s && \
+   sudo mv $BACKUP_DIR/$s $BTRFS_MOUNT
+done
+
+   sudo rm -r $BACKUP_DIR
+
+   echo "Now back at the time just after you made $SNAP_DIR. A reboot may be required."

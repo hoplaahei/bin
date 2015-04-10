@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# sawfish-client -f "( display-message \"New IRC message\" '(( position . ( 5 . 5 ))))"
+
+while read LINE; do
+
+echo ${LINE} | osd_cat --colour=Green --shadow 1 \
+--font="-*-ohsnap-medium-*-*-*-24-*-*-*-*-*-*-*" \
+--pos top --align center --offset 5 --delay=5 &
+
+done
+
+exit 0

@@ -1,0 +1,32 @@
+#!/bin/bash
+
+BTRFS_MOUNT='/mnt/btrfs'
+SNAP_DIR=$1
+
+if ! [[ $SNAP_DIR =~ ^[a-zA-Z_-]+$ ]]; then
+    echo 'For safety reasons, only a-z A-Z - and _ characters are allowed' >&2 # write to stderr
+    exit 1
+fi
+
+if [[ $SNAP_DIR =~ .*\-changes$ ]]; then
+    echo "'-changes' is a filename suffix used by this script internally, and therefore not allowed" >&2 # write to stderr
+    exit 1
+fi
+
+BACKUP_DIR=${BTRFS_MOUNT}/${SNAP_DIR}-changes
+
+if [ ! -d $BACKUP_DIR ]; then
+    sudo mkdir $BACKUP_DIR
+fi
+
+for s in $(sudo btrfs subvolume list $BTRFS_MOUNT | awk '!/\// {print $NF}')
+do
+   sudo mv $BTRFS_MOUNT/$s $BACKUP_DIR/$s && \
+   sudo mv $BTRFS_MOUNT/$SNAP_DIR/$s $BTRFS_MOUNT
+done
+
+   sudo rm -r $BTRFS_MOUNT/$SNAP_DIR
+
+echo Upon next reboot, your system will restore to the time $SNAP_DIR was taken.
+echo To bring back the changes made since $SNAP_DIR, restore the snapshots
+echo saved in $BACKUP_DIR using the rollundo tool

@@ -1,0 +1,7 @@
+#!/bin/sh
+xset -b &
+setxkbmap -option ctrl:nocaps &
+xinput set-prop "Logitech USB-PS/2 Optical Mouse" "Device Accel Profile" -1 &
+xinput set-prop "Logitech USB-PS/2 Optical Mouse" "Device Accel Constant Deceleration" 1 &
+xbindkeys -f ~/.xbindkeysrc.deusex &
+LANG=C WINEFORCEMOUSEWARP=yes vblank_mode=0 wine ~/.wine/drive_c/GOG\ Games/Deus\ Ex\ GOTY/System/DeusEx.exe -2600

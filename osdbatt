@@ -1,0 +1,5 @@
+#!/bin/bash
+CHARGED=`acpi | awk '{ print $4}'`
+STATUS=`acpi`
+
+osd_cat --pos=top --align=center --barmode=percentage --offset=10 --color=white --percentage=${CHARGED} --text="${STATUS}"

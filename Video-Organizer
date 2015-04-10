@@ -1,0 +1,2 @@
+#!/bin/bash
+filebot -script fn:amc --output "$1" --action move --conflict skip -non-strict --def subtitles=en artwork=n backdrops=n music=y "seriesFormat=TV Shows/{n}/Season {s}/{n} {sxe} {t}" "musicFormat=Music/{n}/{fn}" deleteAfterExtract=y clean=y xbmc=localhost plex=localhost "ut_dir=$1" "ut_kind=multi" "ut_title=$1"
